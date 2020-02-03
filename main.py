@@ -1,6 +1,8 @@
+import json
 import sys
 
 import pygame
+from box import Box
 from pygame.locals import *
 from spritesheet import SpriteSheet, Origin
 
@@ -20,6 +22,12 @@ def events():
             sys.exit()
 
 
+def sprite_mapping():
+    with open(SPRITE_LEGEND) as json_file:
+        data = json.load(json_file)
+    return Box(data)
+
+
 def debug_room(room_width, room_height):
     starting_point = (SCREEN_CENTER[0] - (room_width * sprite_w) / 2, SCREEN_CENTER[1] - (room_height * sprite_h) / 2)
     index = 1
@@ -29,22 +37,22 @@ def debug_room(room_width, room_height):
             square = (starting_point[0] + (sprite_w * x), starting_point[1] + (sprite_h * y))
 
             if x == 0 and y > 0:
-                sprite_index = 50
+                sprite_index = sprite_map.dungeon.walls.left
             if x == room_width - 1 and y > 0:
-                sprite_index = 52
+                sprite_index = sprite_map.dungeon.walls.right
             if y == 0 and x > 0:
-                sprite_index = 19
+                sprite_index = sprite_map.dungeon.walls.top
             if y == room_height - 1 and x > 0:
-                sprite_index = 83
+                sprite_index = sprite_map.dungeon.walls.bottom
 
             if x == 0 and y == 0:
-                sprite_index = 18
+                sprite_index = sprite_map.dungeon.corners.top.left
             if x == room_width - 1 and y == 0:
-                sprite_index = 20
+                sprite_index = sprite_map.dungeon.corners.top.right
             if y == room_height - 1 and x == 0:
-                sprite_index = 82
+                sprite_index = sprite_map.dungeon.corners.bottom.left
             if y == room_height - 1 and x == room_width - 1:
-                sprite_index = 84
+                sprite_index = sprite_map.dungeon.corners.bottom.right
 
             if sprite_index:
                 SPRITES.blit(DS, sprite_index, position=square, origin=Origin.Center)
@@ -72,24 +80,35 @@ def draw_ui():
     starting_point = ((horizontal_adjustment + sprite_w / 2), HEIGHT - (4 * (sprite_h / 2)))
 
     # HP:
-    SPRITES.blit(DS, 986, position=starting_point, origin=Origin.Center)
-    SPRITES.blit(DS, 1013, position=(starting_point[0] + sprite_w, starting_point[1]), origin=Origin.Center)
-    SPRITES.blit(DS, 957, position=(starting_point[0] + sprite_w * 2, starting_point[1]), origin=Origin.Center)
+    SPRITES.blit(DS, sprite_map.text.letters.h, position=starting_point, origin=Origin.Center)
+    SPRITES.blit(DS, sprite_map.text.letters.p, position=(starting_point[0] + sprite_w, starting_point[1]),
+                 origin=Origin.Center)
+    SPRITES.blit(DS, sprite_map.text.characters.colon, position=(starting_point[0] + sprite_w * 2, starting_point[1]),
+                 origin=Origin.Center)
     # 000
-    SPRITES.blit(DS, 947, position=(starting_point[0] + sprite_w * 3, starting_point[1]), origin=Origin.Center)
-    SPRITES.blit(DS, 947, position=(starting_point[0] + sprite_w * 4, starting_point[1]), origin=Origin.Center)
-    SPRITES.blit(DS, 947, position=(starting_point[0] + sprite_w * 5, starting_point[1]), origin=Origin.Center)
+    SPRITES.blit(DS, sprite_map.text.numbers.six, position=(starting_point[0] + sprite_w * 3, starting_point[1]),
+                 origin=Origin.Center)
+    SPRITES.blit(DS, sprite_map.text.numbers.six, position=(starting_point[0] + sprite_w * 4, starting_point[1]),
+                 origin=Origin.Center)
+    SPRITES.blit(DS, sprite_map.text.numbers.six, position=(starting_point[0] + sprite_w * 5, starting_point[1]),
+                 origin=Origin.Center)
     # MP:
-    SPRITES.blit(DS, 991, position=(starting_point[0], starting_point[1] + sprite_h), origin=Origin.Center)
-    SPRITES.blit(DS, 1013, position=(starting_point[0] + sprite_w, starting_point[1] + sprite_h), origin=Origin.Center)
-    SPRITES.blit(DS, 957, position=(starting_point[0] + sprite_w * 2, starting_point[1] + sprite_h),
+    SPRITES.blit(DS, sprite_map.text.letters.m, position=(starting_point[0], starting_point[1] + sprite_h),
+                 origin=Origin.Center)
+    SPRITES.blit(DS, sprite_map.text.letters.p, position=(starting_point[0] + sprite_w, starting_point[1] + sprite_h),
+                 origin=Origin.Center)
+    SPRITES.blit(DS, sprite_map.text.characters.colon,
+                 position=(starting_point[0] + sprite_w * 2, starting_point[1] + sprite_h),
                  origin=Origin.Center)
     # 000
-    SPRITES.blit(DS, 947, position=(starting_point[0] + sprite_w * 3, starting_point[1] + sprite_h),
+    SPRITES.blit(DS, sprite_map.text.numbers.six,
+                 position=(starting_point[0] + sprite_w * 3, starting_point[1] + sprite_h),
                  origin=Origin.Center)
-    SPRITES.blit(DS, 947, position=(starting_point[0] + sprite_w * 4, starting_point[1] + sprite_h),
+    SPRITES.blit(DS, sprite_map.text.numbers.six,
+                 position=(starting_point[0] + sprite_w * 4, starting_point[1] + sprite_h),
                  origin=Origin.Center)
-    SPRITES.blit(DS, 947, position=(starting_point[0] + sprite_w * 5, starting_point[1] + sprite_h),
+    SPRITES.blit(DS, sprite_map.text.numbers.six,
+                 position=(starting_point[0] + sprite_w * 5, starting_point[1] + sprite_h),
                  origin=Origin.Center)
 
 
@@ -105,9 +124,11 @@ if __name__ == '__main__':
     DS = pygame.display.set_mode((WIDTH, HEIGHT))
 
     SPRITE_SHEET = "Assets\\Tilesheet\\remap_jd_colored.png"
+    SPRITE_LEGEND = "Assets\\forestsprite.json"
     SPRITES = SpriteSheet(SPRITE_SHEET, columns=32, rows=32)
     sprite_h = SPRITES.sprite_height()
     sprite_w = SPRITES.sprite_width()
+    sprite_map = sprite_mapping()
 
     while True:
         events()
