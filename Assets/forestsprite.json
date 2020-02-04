@@ -1,4 +1,7 @@
 {
+  "player": {
+    "default": 26
+  },
   "dungeon": {
     "walls": {
       "left": 50,

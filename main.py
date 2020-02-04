@@ -15,13 +15,6 @@ class PALLET:
     TRANSPARENT = (0, 0, 0, 0)
 
 
-def events():
-    for event in pygame.event.get():
-        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-            pygame.quit()
-            sys.exit()
-
-
 def sprite_mapping():
     with open(SPRITE_LEGEND) as json_file:
         data = json.load(json_file)
@@ -130,12 +123,36 @@ if __name__ == '__main__':
     sprite_w = SPRITES.sprite_width()
     sprite_map = sprite_mapping()
 
+    player_posx = SCREEN_CENTER[0]
+    player_posy = SCREEN_CENTER[1]
+    player_velocity = sprite_w
+
     while True:
-        events()
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+
+            keys = pygame.key.get_pressed()
+
+            if keys[pygame.K_LEFT]:
+                player_posx -= player_velocity
+
+            if keys[pygame.K_RIGHT]:
+                player_posx += player_velocity
+
+            if keys[pygame.K_UP]:
+                player_posy -= player_velocity
+
+            if keys[pygame.K_DOWN]:
+                player_posy += player_velocity
+
+        player = SPRITES.blit(DS, sprite_map.player.default, position=(player_posx, player_posy), origin=Origin.Center)
+
         pygame.display.update()
         CLOCK.tick(FPS)
         DS.fill(PALLET.BACKGROUND)
 
         debug_room(16, 16)
-        draw_grid()
+        # draw_grid()
         draw_ui()
